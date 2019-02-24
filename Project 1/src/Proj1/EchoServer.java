@@ -13,12 +13,12 @@ public class EchoServer {
 
         try {
             ServerSocket serverSocket = new ServerSocket(2710);
+            client = serverSocket.accept();
 
-            for (int i = 0; i <= 3; i++) {
-                client = serverSocket.accept();
+            out = new PrintWriter(client.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
-                out = new PrintWriter(client.getOutputStream(), true);
-                in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            for (int i = 0; i < 3; i++) {
 
                 String command = in.readLine();
 

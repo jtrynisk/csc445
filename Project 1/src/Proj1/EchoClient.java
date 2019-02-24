@@ -8,7 +8,7 @@ import java.nio.Buffer;
 public class EchoClient {
 
     public static void main(String[] args){
-        String host = "pi.cs.oswego.edu";
+        String host = "127.0.0.1";
 
         Socket echoSocket = null;
         PrintWriter out = null;
