@@ -19,7 +19,7 @@ public class UDPServer extends Thread{
 
     public void run() {
 
-        while (true) {
+        for (int i =0; i < 3; i++) {
             try {
                 byte[] buf = new byte[1024];
                 DatagramPacket packet;

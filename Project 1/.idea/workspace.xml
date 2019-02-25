@@ -31,12 +31,12 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="dummy" value="42" />
-          <entry key="java" value="10276" />
+          <entry key="java" value="10465" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="10276" />
+          <entry key="JAVA" value="10465" />
           <entry key="PLAIN_TEXT" value="42" />
         </counts>
       </usages-collector>
@@ -47,8 +47,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Proj1/EchoClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-89">
-              <caret line="12" column="33" lean-forward="true" selection-start-line="12" selection-start-column="33" selection-end-line="12" selection-end-column="33" />
+            <state relative-caret-position="690">
+              <caret line="46" column="97" selection-start-line="46" selection-start-column="97" selection-end-line="46" selection-end-column="97" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -56,7 +59,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Proj1/EchoServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="235">
+            <state relative-caret-position="285">
               <caret line="20" column="31" lean-forward="true" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
             </state>
           </provider>
@@ -65,8 +68,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Proj1/UDPServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="29" column="53" selection-start-line="29" selection-start-column="53" selection-end-line="29" selection-end-column="53" />
+            <state relative-caret-position="273">
+              <caret line="21" column="33" selection-start-line="21" selection-start-column="33" selection-end-line="21" selection-end-column="33" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -77,8 +80,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Proj1/UDPClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="226">
-              <caret line="38" column="12" selection-start-line="38" selection-start-column="12" selection-end-line="38" selection-end-column="12" />
+            <state relative-caret-position="375">
+              <caret line="25" column="66" selection-start-line="25" selection-start-column="66" selection-end-line="25" selection-end-column="66" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -106,10 +109,10 @@
         <option value="$PROJECT_DIR$/src/Proj1/Client/EchoClient.java" />
         <option value="$PROJECT_DIR$/src/DL_Example/EchoClient.java" />
         <option value="$PROJECT_DIR$/src/DL_Example/SimpleService.java" />
-        <option value="$PROJECT_DIR$/src/Proj1/EchoClient.java" />
         <option value="$PROJECT_DIR$/src/Proj1/EchoServer.java" />
         <option value="$PROJECT_DIR$/src/Proj1/QuoteClient.java" />
         <option value="$PROJECT_DIR$/src/Proj1/QuoteServerThread.java" />
+        <option value="$PROJECT_DIR$/src/Proj1/EchoClient.java" />
         <option value="$PROJECT_DIR$/src/Proj1/UDPServer.java" />
         <option value="$PROJECT_DIR$/src/Proj1/UDPClient.java" />
       </list>
@@ -153,7 +156,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1551071194038" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1551110134557" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -279,7 +282,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3299566" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3299566" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39942113" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -372,24 +375,27 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Proj1/EchoClient.java">
+    <entry file="file://$PROJECT_DIR$/src/Proj1/EchoServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-89">
-          <caret line="12" column="33" lean-forward="true" selection-start-line="12" selection-start-column="33" selection-end-line="12" selection-end-column="33" />
+        <state relative-caret-position="285">
+          <caret line="20" column="31" lean-forward="true" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Proj1/EchoServer.java">
+    <entry file="file://$PROJECT_DIR$/src/Proj1/EchoClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="20" column="31" lean-forward="true" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
+        <state relative-caret-position="690">
+          <caret line="46" column="97" selection-start-line="46" selection-start-column="97" selection-end-line="46" selection-end-column="97" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Proj1/UDPServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="29" column="53" selection-start-line="29" selection-start-column="53" selection-end-line="29" selection-end-column="53" />
+        <state relative-caret-position="273">
+          <caret line="21" column="33" selection-start-line="21" selection-start-column="33" selection-end-line="21" selection-end-column="33" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -398,8 +404,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Proj1/UDPClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="226">
-          <caret line="38" column="12" selection-start-line="38" selection-start-column="12" selection-end-line="38" selection-end-column="12" />
+        <state relative-caret-position="375">
+          <caret line="25" column="66" selection-start-line="25" selection-start-column="66" selection-end-line="25" selection-end-column="66" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
