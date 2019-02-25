@@ -8,6 +8,7 @@ public class UDPClient {
 
     public static void main(String[] args) {
 
+        //Initialize variables
         int port = 2710;
         DatagramSocket socket = null;
         DatagramPacket packet;
@@ -16,6 +17,7 @@ public class UDPClient {
         byte[] m3 = new byte[1024];
 
         try {
+            //Open socket
             socket = new DatagramSocket();
         } catch (java.io.IOException e) {
             System.err.println("Could not create Datagram Socket");

@@ -5,10 +5,12 @@ import java.net.*;
 
 public class UDPServer extends Thread{
 
+    //initialize variables
     private DatagramSocket socket = null;
     private DataInputStream in = null;
 
     UDPServer() {
+        //Setup a UDP Server thread
         super("QuoteServer");
         try {
             socket = new DatagramSocket(2710);
@@ -19,8 +21,10 @@ public class UDPServer extends Thread{
 
     public void run() {
 
+        //Creating loop for the amount of requests we will get
         for (int i =0; i < 3; i++) {
             try {
+                //Create variables for the request and response, max size of max packet.
                 byte[] buf = new byte[1024];
                 DatagramPacket packet;
                 InetAddress address;
@@ -43,6 +47,7 @@ public class UDPServer extends Thread{
 
     }
 
+    //Method to close the UDP port
     protected void finalize() {
         if (socket != null) {
             socket.close();
@@ -52,6 +57,7 @@ public class UDPServer extends Thread{
     }
 
 
+    //Main method to run and finalize UDP server
     public static void main(String[] args) {
         UDPServer e = new UDPServer();
         e.run();
