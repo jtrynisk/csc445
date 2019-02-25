@@ -20,7 +20,7 @@ public class EchoServer {
             out = new PrintWriter(client.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 8; i++) {
 
                 //Loop for the amount of times it will get requests.
                 //Send the request back
