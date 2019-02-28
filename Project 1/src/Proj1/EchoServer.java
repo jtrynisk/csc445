@@ -2,6 +2,7 @@ package Proj1;
 
 import java.io.*;
 import java.net.*;
+import java.nio.Buffer;
 
 public class EchoServer {
 
@@ -12,7 +13,7 @@ public class EchoServer {
         BufferedReader in = null;
         Socket client = null;
         OutputStream outStream;
-        InputStream inputStream;
+        DataInputStream inputStream;
 
         try {
             //Setup of the variables
@@ -21,7 +22,7 @@ public class EchoServer {
 
             out = new PrintWriter(client.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            inputStream = client.getInputStream();
+            inputStream = new DataInputStream(new BufferedInputStream(client.getInputStream()));
             byte[] m1 = new byte[1000];
             byte[] m2 = new byte[16000];
             byte[] m3 = new byte[64000];
@@ -45,23 +46,22 @@ public class EchoServer {
             inputStream.read(m4);
             inputStream.read(m5);
 
-            System.out.println("reading 1024");
-            for (int i = 0; i < 1024; i++) {
-                inputStream.read(data);
+            //1024 1024
+            int read = 0;
+            while((read = inputStream.read(data, 0,1024)) == 1024){
+                client.setSoTimeout(200);
             }
             out.println("a");
 
-            System.out.println("reading 2048");
-            for (int i = 0; i < 512; i++) {
-                inputStream.read(data1);
+            while((read = inputStream.read(data1, 0, 512)) == 512){
+                client.setSoTimeout(200);
             }
-            out.println("b");
+            out.println("a");
 
-            System.out.println("reading 4096");
-            for (int i = 0; i < 256; i++) {
-                inputStream.read(data2);
+            while((read = inputStream.read(data2, 0, 256)) != -1){
+                client.setSoTimeout(200);
             }
-            out.println("c");
+            out.println("a");
 
         } catch (IOException err) {
             //Handle IO Error on connecting to client

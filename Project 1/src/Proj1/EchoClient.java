@@ -13,7 +13,7 @@ public class EchoClient {
         Socket echoSocket = null;
         PrintWriter out = null;
         BufferedReader in = null;
-        BufferedOutputStream outStream = null;
+        DataOutputStream outStream = null;
 
         long start = 0;
         byte[] m1 = new byte[1000];
@@ -30,7 +30,7 @@ public class EchoClient {
             echoSocket = new Socket(host, 2710);
             out = new PrintWriter(echoSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
-            outStream = new BufferedOutputStream(echoSocket.getOutputStream());
+            outStream = new DataOutputStream(new BufferedOutputStream(echoSocket.getOutputStream()));
         }
         catch(UnknownHostException e){
             //Handles host being incorrect
@@ -91,30 +91,29 @@ public class EchoClient {
             outStream.flush();
             System.out.println("RTT of 1M message: " + (System.nanoTime() - start));
 
-            outStream.flush();
             //1024, 1024byte messages
             start = System.nanoTime();
             for (int i = 0; i < 1024; i++){
                 outStream.write(m6);
             }
-            in.readLine();
-            System.out.println("RTT of 1024, 1024 byte messages: " + (System.nanoTime() - start));
+            outStream.writeChars("a");
+            System.out.println("RTT of 1024, 1024 byte messages: " + (System.nanoTime() - start) + " with response: " + in.readLine());
 
             //2048, 512 byte messages
             start = System.nanoTime();
             for (int i = 0; i < 2048; i++){
                 outStream.write(m7);
             }
-            in.readLine();
-            System.out.println("RTT of 2048, 512 byte messages: " + (System.nanoTime() - start));
+            outStream.writeChars("a");
+            System.out.println("RTT of 2048, 512 byte messages: " + (System.nanoTime() - start) + " with response: " + in.readLine());
 
             //4096, 256 byte messages
             start = System.nanoTime();
             for (int i = 0; i < 4096; i++){
                 outStream.write(m8);
             }
-            in.readLine();
-            System.out.println("RTT of 4096, 256 byte messages: " + (System.nanoTime() - start));
+            outStream.writeChars("a");
+            System.out.println("RTT of 4096, 256 byte messages: " + (System.nanoTime() - start) + " with response: " + in.readLine());
 
 
             //Clean up, closes the port, printwriter, and bufferedreader
