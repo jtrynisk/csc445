@@ -1,5 +1,6 @@
 package Proj1;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.*;
 
@@ -39,10 +40,60 @@ public class UDPServer extends Thread{
                 //send response
                 packet = new DatagramPacket(buf, buf.length, address, port);
                 socket.send(packet);
+
+
+
             } catch(IOException err){
                 System.err.println("IO Error");
                 System.exit(1);
             }
+        }
+
+        try{
+            byte[] buf = new byte[1024];
+            byte[] buf1 = new byte[512];
+            byte[] buf2 = new byte[256];
+            byte[] response =new byte[1];
+            DatagramPacket packet = null;
+            InetAddress address = null;
+            int port = 0;
+
+            packet = new DatagramPacket(buf, 1024);
+            for(int i = 0; i < 1024; i++){
+                System.out.println(i);
+                socket.receive(packet);
+                address = packet.getAddress();
+                port = packet.getPort();
+                socket.setSoTimeout(200);
+            }
+            packet = new DatagramPacket(response, response.length, address, port);
+            socket.send(packet);
+
+            packet = new DatagramPacket(buf1, 512);
+            for(int i = 0; i < 2048; i++){
+                socket.receive(packet);
+                address= packet.getAddress();
+                port = packet.getPort();
+                socket.setSoTimeout(200);
+            }
+            packet = new DatagramPacket(response, response.length, address, port);
+            socket.send(packet);
+
+            packet = new DatagramPacket(buf2, 256);
+            for(int i = 0; i < 4096; i++){
+                socket.receive(packet);
+                address = packet.getAddress();
+                port = packet.getPort();
+                socket.setSoTimeout(200);
+            }
+            packet = new DatagramPacket(response, response.length, address, port);
+            socket.send(packet);
+
+
+
+        }catch (IOException err){
+            System.err.println("IO Error");
+            System.exit(1);
         }
 
     }
