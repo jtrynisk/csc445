@@ -23,6 +23,8 @@ public class EchoServer {
             out = new PrintWriter(client.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             inputStream = new DataInputStream(new BufferedInputStream(client.getInputStream()));
+            outStream = new DataOutputStream(new BufferedOutputStream(client.getOutputStream()));
+            byte[] m0 = new byte[1];
             byte[] m1 = new byte[1000];
             byte[] m2 = new byte[16000];
             byte[] m3 = new byte[64000];
@@ -33,11 +35,8 @@ public class EchoServer {
             byte[] data2 = new byte[256];
 
             //Read in the first three commands, as they are strings.
-            for (int i = 0; i < 3; i++) {
-                String command = in.readLine();
-                String reply = command;
-                out.println(reply);
-            }
+            inputStream.read(m0, 0, 1);
+            outStream.write(m0);
 
             //read in the 5 different bytes for throughput measurements.
             inputStream.read(m1);
@@ -51,17 +50,17 @@ public class EchoServer {
             while((read = inputStream.read(data, 0,1024)) == 1024){
                 client.setSoTimeout(200);
             }
-            out.println("a");
+            outStream.write(m0);
 
             while((read = inputStream.read(data1, 0, 512)) == 512){
                 client.setSoTimeout(200);
             }
-            out.println("a");
+            outStream.write(m0);
 
-            while((read = inputStream.read(data2, 0, 256)) != -1){
+            while((read = inputStream.read(data2, 0, 256)) == 256){
                 client.setSoTimeout(200);
             }
-            out.println("a");
+            outStream.write(m0);
 
         } catch (IOException err) {
             //Handle IO Error on connecting to client

@@ -27,7 +27,7 @@ public class UDPClient {
 
         try {
             //send request
-            InetAddress address = InetAddress.getByName("127.0.0.1");
+            InetAddress address = InetAddress.getByName("pi.cs.oswego.edu");
             packet = new DatagramPacket(m1, 1, address, port);
             socket.send(packet);
             long start = System.nanoTime();
