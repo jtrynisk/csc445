@@ -1,6 +1,4 @@
-import java.io.DataInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -8,13 +6,11 @@ import java.util.*;
 
 public class FileServer extends Thread {
 
-    private String toUpload;
     private int port;
     private DatagramSocket socket = null;
-    private DataInputStream in = null;
     private DatagramPacket inPacket = null;
-    private DatagramPacket outPacket = null;
     private static final byte OP_ACK = 4;
+    private BufferedOutputStream bos;
 
     //Constructor for the file server, takes in a port to create a socket on specified port
     public FileServer(int port) {
@@ -37,7 +33,6 @@ public class FileServer extends Thread {
             inPacket = new DatagramPacket(req, req.length);
             socket.receive(inPacket);
             int totalPackets = req[0] + 1;
-            System.out.println(totalPackets);
             String fileName = "";
             for(int z = 2; z < req.length; z++){
                 fileName +=  (char)req[z];
@@ -47,7 +42,7 @@ public class FileServer extends Thread {
                 byte[] buff = new byte[512];
                 inPacket = new DatagramPacket(buff, buff.length);
                 socket.receive(inPacket);
-                for(int i = 0; i < buff.length; i++){
+                for(int i = 2; i < buff.length; i++){
                     data[count] = buff[i];
                     count++;
                 }
@@ -55,16 +50,12 @@ public class FileServer extends Thread {
                 sendAcknowledgment(ack);
             }
 
-            int actualSize = 0;
-            for(int i = 0; i < data.length; i++){
-                if(data[i] != 0)
-                    actualSize++;
-            }
             byte[] actualData = new byte[27001];
             System.arraycopy(data, 0, actualData, 0, 27001);
-            System.out.println(actualSize);
-            FileOutputStream fos = new FileOutputStream("/Users/jondntryniski/445/" + fileName);
-            fos.write(actualData);
+            String newFilePath = ("/Users/jondntryniski/445/" + fileName);
+            bos = new BufferedOutputStream(new FileOutputStream(newFilePath));
+            bos.write(actualData);
+            bos.close();
 
         }catch(IOException err){
             System.out.println("Error during IO of run method");

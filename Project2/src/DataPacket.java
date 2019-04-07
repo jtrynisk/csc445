@@ -1,14 +1,9 @@
 import java.net.DatagramPacket;
-import java.io.*;
 import java.net.InetAddress;
-import java.util.Arrays;
 
 public class DataPacket extends Packet {
 
     public DataPacket(){
-
-        super();
-        this.opCode = OP_DATA;
 
     }
 
@@ -17,8 +12,11 @@ public class DataPacket extends Packet {
         DatagramPacket returnPacket = null;
         int size = 0;
         for(int i = 0; i < fileContent.length; i++){
-            size++;
+            System.out.println(fileContent[i]);
+            if(fileContent[i] != 0)
+                size++;
         }
+        System.out.println(size);
         byte[] retArr = new byte[size + 2];
         retArr[0] = OP_DATA;
         retArr[1] = (byte)blockNum;

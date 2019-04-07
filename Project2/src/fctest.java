@@ -13,8 +13,11 @@ public class fctest {
         System.out.println(file.getName());
 
         fc.wrq(file.getName(), file);
-        fc.sendSequential(filepath);
-
+        try {
+            fc.sendSequential(filepath);
+        }catch(IOException e){
+            System.out.println("Error boiiiii");
+        }
     }
 
 }

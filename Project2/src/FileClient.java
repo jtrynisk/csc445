@@ -10,6 +10,7 @@ import java.nio.file.*;
 public class FileClient {
 
     // Variables that are set and cannot be changed due to TFTP protocol.
+    private static final byte OP_DATA = 3;
     private static final byte OP_ACK = 4;
     private static final byte OP_ERR = 5;
     private static final int PACKET_SIZE = 512;
@@ -22,6 +23,7 @@ public class FileClient {
     private DatagramSocket socket = null;
     private DatagramPacket outPacket = null;
     private DatagramPacket inPacket = null;
+    private BufferedInputStream bis;
 
     /**
      * Constructor of FileClient creates a new socket
@@ -84,42 +86,38 @@ public class FileClient {
         }
     }
 
-    public void sendSequential(String fileName){
+    public void sendSequential(String fileName) throws IOException{
 
         try{
             //initialize variables for the write request
             address = InetAddress.getByName(this.host);
             File file = new File(fileName);
-
             double totalPackets = file.length()/PACKET_SIZE;
             totalPackets = Math.ceil(totalPackets);
-            int count = 0;
-            Path path = Paths.get(file.getAbsolutePath());
-            byte[] fileContent = Files.readAllBytes(path);
-            for(int as = 0; as < fileContent.length; as++)
-                System.out.println(fileContent[as]);
-            for (int i = 0; i <= totalPackets; i++){
-                byte[] buff = new byte[510];
-                //Now somehow send over only 512 bytes of the file
-                for (int j = 0; j < 510; j++) {
-                    if (fileContent.length > count) {
-                        buff[j] = fileContent[count];
-                        count++;
-                    }
+            int count = 1;
+            byte[] fileContent = new byte[(int)file.length()];
+
+            //Fill fileContent array with the file.
+            FileInputStream fis = new FileInputStream(file);
+            fis.read(fileContent);
+
+            //This will create a packet for each block.
+            for(int i = 0; i <= totalPackets; i++){
+                byte[] temp = new byte[510];
+                temp = Arrays.copyOfRange(fileContent, (i * 510), (i * 510) + 510);
+                DataPacket packet = new DataPacket();
+                socket.setSoTimeout(200);
+                try{
+                    socket.send(packet.createPacket(temp, address, port, i));
+                }catch(SocketTimeoutException to){
+                    socket.send(packet.createPacket(temp, address, port, i));
                 }
-                DataPacket data = new DataPacket();
-                outPacket = data.createPacket(buff, address, port, i);
-                socket.send(outPacket);
                 byte[] ack = new byte[4];
                 DatagramPacket ackPacket = new DatagramPacket(ack, ack.length);
-                socket.setSoTimeout(2000);
-                try {
-                    socket.receive(ackPacket);
-                }catch(SocketTimeoutException to){
-                    socket.send(outPacket);
-                }
+                socket.receive(ackPacket);
 
             }
+
 
         }
         catch(IOException e){
