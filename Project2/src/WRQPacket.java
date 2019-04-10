@@ -2,34 +2,35 @@ import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.io.*;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 
 public class WRQPacket extends Packet {
 
 
-    public WRQPacket(byte[] buffer){
+    public WRQPacket(){
 
-        super(buffer);
         this.opCode = OP_WRQ;
 
     }
 
-    public DatagramPacket createPacket(String toUpload, File file, InetAddress address, int port){
+    public DatagramPacket createPacket(String toUpload, File file, InetAddress address, int port, int sendAs){
 
-        DatagramPacket outPacket = null;
-        packetLength = toUpload.length() + 5;
+        DatagramPacket outPacket;
+        buffer = new byte[3 + (int)file.length()];
         position = 0;
-        totalPackets = file.length()/PACKET_SIZE;
-        totalPackets = (int)totalPackets;
+        totalPackets = (file.length()/PACKET_SIZE);
         buffer[position] = (byte)totalPackets;
         position++;
         buffer[position] = OP_WRQ;
+        position++;
+        buffer[position] = (byte)sendAs;
         position++;
         for (int i = 0; i < toUpload.length(); i++){
             buffer[position] = (byte) toUpload.charAt(i);
             position++;
         }
 
-        outPacket = new DatagramPacket(buffer, 0, packetLength, address, port);
+        outPacket = new DatagramPacket(buffer, 0, buffer.length, address, port);
         return outPacket;
 
     }

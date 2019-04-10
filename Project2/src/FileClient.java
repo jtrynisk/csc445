@@ -1,32 +1,22 @@
-import com.sun.tools.internal.ws.wsdl.document.Output;
-
-import java.math.BigInteger;
-import java.nio.file.Files;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.io.*;
 import java.net.*;
-import java.nio.file.*;
+import java.util.concurrent.TimeoutException;
 
 public class FileClient {
 
     // Variables that are set and cannot be changed due to TFTP protocol.
-    private static final byte OP_DATA = 3;
-    private static final byte OP_ACK = 4;
-    private static final byte OP_ERR = 5;
     private static final int PACKET_SIZE = 512;
 
     //Variables used by the client to be manipulated in some way, shape, or form.
     private int port;
     private String host;
     private InetAddress address = null;
-    private byte[] buffByteArr;
     private DatagramSocket socket = null;
-    private DatagramPacket outPacket = null;
-    private DatagramPacket inPacket = null;
-    private BufferedInputStream bis;
 
     /**
-     * Constructor of FileClient creates a new socket
+     * Constructor of FileClient creates a new socket IPv4
      * @param host taken in as string
      * @param port taken as int for the port
      * No return just creates an open socket to the host on the specified port
@@ -44,49 +34,53 @@ public class FileClient {
     }
 
     /**
-     * Lets the client know if packet coming in is the last packet or not.
-     * @param packet
-     * @return boolean of if the packet is the last that is being transmitted else false
+     * Creates a File Client with IPv6 parameters
+     * @param host
+     * @param port
+     * @param address
      */
-    public boolean isLastpacket(DatagramPacket packet){
-        if (packet.getLength() < 512)
-            return true;
-        else
-            return false;
+    public FileClient(String host, int port, InetAddress address){
+
+        this.host = host;
+        this.port = port + 1;
+        System.setProperty("java.net.preferIPv6Addresses", "true");
+        try{
+            socket = new DatagramSocket(port + 1, address);
+        }catch(SocketException e){
+            e.printStackTrace();
+        }
+
     }
 
-
     /**
-     * This method simply prints when an error occurs.
-     */
-    public void sendError() {
-        String errorCode = new String(buffByteArr, 3, 1);
-        String errorText = new String(buffByteArr, 4, inPacket.getLength() - 4);
-        System.err.println("Error: " + errorCode + " " + errorText);
-    }
-
-
-    /**
-     * Takes the string of the filename and creates a wrq for the server
+     * Goes through and creates a write request. The send as
+     * is for the different parameters of the assignment.
+     * IPv4 vs IPv6
+     * Sequential or Dropped or Sliding Window.
      * @param toUpload
+     * @param file
+     * @param sendAs
      */
-    public void wrq(String toUpload, File file){
+    public void wrq(String toUpload, File file, int sendAs){
 
         try {
             //Create variables for the wrq packet
             address = InetAddress.getByName(this.host);
-            byte[] buffer = new byte[toUpload.length() + 6];
-            WRQPacket wrq = new WRQPacket(buffer);
-            DatagramPacket outPacket = wrq.createPacket(toUpload, file, address, port);
+            System.out.println("made address");
+            WRQPacket wrq = new WRQPacket();
+            System.out.println("created wrq packet");
+            DatagramPacket outPacket = wrq.createPacket(toUpload, file, address, port, sendAs);
+            System.out.println("created outPacket");
             socket.send(outPacket);
+            System.out.println("Sent packet");
 
         }
         catch(IOException err){
-            System.err.println("Error in wrq");
+            err.printStackTrace();
         }
     }
 
-    public void sendSequential(String fileName) throws IOException{
+    public void sendSequential(String fileName) {
 
         try{
             //initialize variables for the write request
@@ -94,7 +88,6 @@ public class FileClient {
             File file = new File(fileName);
             double totalPackets = file.length()/PACKET_SIZE;
             totalPackets = Math.ceil(totalPackets);
-            int count = 1;
             byte[] fileContent = new byte[(int)file.length()];
 
             //Fill fileContent array with the file.
@@ -103,10 +96,10 @@ public class FileClient {
 
             //This will create a packet for each block.
             for(int i = 0; i <= totalPackets; i++){
-                byte[] temp = new byte[510];
+                byte[] temp;
                 temp = Arrays.copyOfRange(fileContent, (i * 510), (i * 510) + 510);
                 DataPacket packet = new DataPacket();
-                socket.setSoTimeout(200);
+                socket.setSoTimeout(2000);
                 try{
                     socket.send(packet.createPacket(temp, address, port, i));
                 }catch(SocketTimeoutException to){
@@ -121,9 +114,94 @@ public class FileClient {
 
         }
         catch(IOException e){
-            System.err.println("Error in send sequential");
+            e.printStackTrace();
+        }
+    }
+
+    public void sendDropped(String fileName){
+
+        try{
+            //initialize variables for the write request
+            address = InetAddress.getByName(this.host);
+            File file = new File(fileName);
+            double totalPackets = file.length()/PACKET_SIZE;
+            totalPackets = Math.ceil(totalPackets);
+            byte[] fileContent = new byte[(int)file.length()];
+
+            //Fill fileContent array with the file.
+            FileInputStream fis = new FileInputStream(file);
+            fis.read(fileContent);
+
+            //This will create a packet for each block.
+            for(int i = 0; i <= totalPackets; i++){
+                byte[] temp;
+                temp = Arrays.copyOfRange(fileContent, (i * 510), (i * 510) + 510);
+                DataPacket packet = new DataPacket();
+                socket.setSoTimeout(5000);
+                try{
+                    socket.send(packet.createPacket(temp, address, port, i));
+                }catch(SocketTimeoutException to){
+                    socket.send(packet.createPacket(temp, address, port, i));
+                }
+                byte[] ack = new byte[4];
+                DatagramPacket ackPacket = new DatagramPacket(ack, ack.length);
+                socket.receive(ackPacket);
+
+            }
+
+        }
+        catch(IOException e){
+            e.printStackTrace();
         }
     }
 
 
+    public void sendWindow(String fileName){
+
+        //Create variables for windowed send.
+        File file= new File(fileName);
+        int totalPackets = (int)file.length()/PACKET_SIZE;
+        Window window = new Window(PACKET_SIZE, totalPackets, socket);
+        window.setUpWindowClient();
+        byte[] fileContent = new byte[(int)file.length()];
+        ArrayList receivedAcks = new ArrayList(totalPackets);
+        int blockNum = 0;
+        boolean allSent = false;
+
+        try {
+
+            //Fill the byte array with the file
+            FileInputStream fis = new FileInputStream(file);
+            fis.read(fileContent);
+
+            //Now we send and get some acks back
+            //So the thing is we need to get acks and if no dropped pakcets
+            //increase the window size.
+                //This will loop until we verify receivedAcks is full.
+            while(!allSent) {
+
+                for (int i = 0; i < window.getWindowSize(); i++) {
+                    byte[] temp;
+                    temp = Arrays.copyOfRange(fileContent, blockNum * 510, (blockNum * 510) + 510);
+                    DatagramPacket outPacket = new DataPacket().createPacket(temp, address, port, blockNum);
+                    try {
+                        socket.setSoTimeout(2000);
+                        socket.send(outPacket);
+                    }catch(SocketTimeoutException to){}
+                    byte[] ack = new byte[4];
+                    DatagramPacket ACK = new DatagramPacket(ack, ack.length);
+                    socket.receive(ACK);
+                    receivedAcks.add(ack[0], 1);
+                    blockNum++;
+
+                    //Need to implement something to increase window size.
+                }
+                if(!receivedAcks.contains(null))
+                    allSent = true;
+
+            }
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
 }

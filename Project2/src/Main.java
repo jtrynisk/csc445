@@ -39,7 +39,7 @@ public class Main {
             //logic for reading recursively through the directory
         }
         else{
-            fileClient.wrq(filePath, file);
+            fileClient.wrq(filePath, file, 1);
         }
 
     }

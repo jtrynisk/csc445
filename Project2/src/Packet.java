@@ -1,10 +1,12 @@
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 
 public class Packet {
 
     protected final static int PACKET_SIZE = 512;
     protected final static byte OP_WRQ = 1;
     protected final static byte OP_DATA = 3;
+    protected final static byte OP_ACK = 4;
 
     protected short opCode;
     protected DatagramPacket packet;
