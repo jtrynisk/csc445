@@ -1,3 +1,4 @@
+import javax.xml.crypto.Data;
 import java.util.*;
 import java.io.*;
 import java.net.*;
@@ -6,12 +7,14 @@ public class FileClient {
 
     // Variables that are set and cannot be changed due to TFTP protocol.
     private static final int PACKET_SIZE = 512;
+    private static final int DATAPACKET_SIZE = 510;
 
     //Variables used by the client to be manipulated in some way, shape, or form.
     private int port;
     private String host;
     private InetAddress address = null;
     private DatagramSocket socket = null;
+    private FileInputStream fis = null;
 
     /**
      * Constructor of FileClient creates a new socket IPv4
@@ -99,9 +102,8 @@ public class FileClient {
 
             //This will create a packet for each block.
             for(int i = 0; i <= totalPackets; i++){
-                System.out.println(i);
                 byte[] temp;
-                temp = Arrays.copyOfRange(fileContent, (i * 510), (i * 510) + 510);
+                temp = Arrays.copyOfRange(fileContent, (i * DATAPACKET_SIZE), (i * DATAPACKET_SIZE) + DATAPACKET_SIZE);
                 DataPacket packet = new DataPacket();
                 try{
                     socket.send(packet.createPacket(temp, address, port, i));
@@ -139,13 +141,13 @@ public class FileClient {
             byte[] fileContent = new byte[(int)file.length()];
 
             //Fill fileContent array with the file.
-            FileInputStream fis = new FileInputStream(file);
+            fis = new FileInputStream(file);
             fis.read(fileContent);
 
             //This will create a packet for each block.
             for(int i = 0; i <= totalPackets; i++){
                 byte[] temp;
-                temp = Arrays.copyOfRange(fileContent, (i * 510), (i * 510) + 510);
+                temp = Arrays.copyOfRange(fileContent, (i * DATAPACKET_SIZE), (i * DATAPACKET_SIZE) + DATAPACKET_SIZE);
                 DataPacket packet = new DataPacket();
                 try{
                     socket.send(packet.createPacket(temp, address, port, i));
@@ -182,78 +184,64 @@ public class FileClient {
         int blockNum = 0;
         Arrays.fill(receivedAcks, 0);
         window.setWindowSize(2);
+        boolean dropDetected = false;
+        Queue<DatagramPacket>toSend = null;
 
         try {
 
-            int loopCount = totalPackets/window.getWindowSize();
-            System.out.println(loopCount);
-
-            //Fill the byte array with the file
+            //This creates each packet and adds it to the queue.
             FileInputStream fis = new FileInputStream(file);
             fis.read(fileContent);
-
-            //Now we send and get some acks back
-            //So the thing is we need to get acks and if no dropped pakcets
-            //increase the window size.
-                //This will loop until we verify receivedAcks is full.
-            for(int j = 0; j < loopCount; j++){
-                System.out.println(j);
+            for(int i = 0; i < totalPackets; i++){
                 byte[] temp;
-                byte[] temp2;
-                temp = Arrays.copyOfRange(fileContent, blockNum * 510, (blockNum * 510) + 510);
-                DatagramPacket outPacket = new DataPacket().createPacket(temp, address, port, blockNum);
-                blockNum++;
-                temp2 = Arrays.copyOfRange(fileContent, blockNum * 510, (blockNum * 510) + 510);
-                DatagramPacket outPacket2 = new DataPacket().createPacket(temp2, address, port, blockNum);
-                try {
-                    socket.send(outPacket);
-                    socket.setSoTimeout(5000);
-                    socket.send(outPacket2);
-                    socket.setSoTimeout(5000);
-                }catch(SocketTimeoutException to){
-                    System.out.println("Dropped a packet");
-                }
-                byte[] ack = new byte[4];
-                byte[] ack2 = new byte[4];
-                DatagramPacket ACK = new DatagramPacket(ack, ack.length);
-                DatagramPacket ACK2 = new DatagramPacket(ack2, ack2.length);
-                try {
-                    socket.receive(ACK);
-                    socket.receive(ACK2);
-                }catch(SocketTimeoutException to){
-                    System.out.println("Dropped ack");
-                }
-                receivedAcks[ack[0]] = 1;
-                receivedAcks[ack2[0]] = 1;
-                blockNum++;
-
+                temp = Arrays.copyOfRange(fileContent, (i * DATAPACKET_SIZE), (i * DATAPACKET_SIZE) + DATAPACKET_SIZE);
+                DatagramPacket packet = new DataPacket().createPacket(temp, address, port, i);
+                toSend.add(packet);
             }
 
-            for (int l = 0; l < receivedAcks.length; l++){
-                if(receivedAcks[l] == 0){
-                    System.out.println(l);
-                    blockNum = receivedAcks[l];
-                    byte[] temp;
-                    temp = Arrays.copyOfRange(fileContent, blockNum * 510, (blockNum * 510) + 510);
-                    DatagramPacket outPacket = new DataPacket().createPacket(temp, address, port, blockNum);
-                    try {
-                        socket.send(outPacket);
-                        socket.setSoTimeout(5000);
-                    }catch(SocketTimeoutException to){
-                        socket.send(outPacket);
-                    }
-                    byte[] ack = new byte[4];
-                    DatagramPacket ACK = new DatagramPacket(ack, ack.length);
-                    try {
-                        socket.receive(ACK);
-                    }catch(SocketTimeoutException to){
-                    }
-                    receivedAcks[ack[0]] = 1;
+            //This will keep sending until the queue is empty
+            while(!toSend.isEmpty()){
+
+                //Send the packets for the size of the window
+                for(int i = 0; i < window.getWindowSize(); i++){
+                    socket.send(toSend.remove());
                 }
+
+                //Need something to check if we receive an ack for what is sent
+
+                //Receive acks for the size of the window
+                for(int i = 0; i < window.getWindowSize(); i++){
+                    try{
+                        byte[]ack = new byte[4];
+                        DatagramPacket ACK = new DatagramPacket(ack, ack.length);
+                        socket.receive(ACK);
+                        socket.setSoTimeout(5000);
+                        receivedAcks[ack[0]] = 1;
+                    }catch(SocketTimeoutException to){
+                        dropDetected = true;
+                    }
+                }
+
+                if(!dropDetected)
+                    window.incrementWindowSize();
+                else
+                    if (window.getWindowSize() > 2)
+                        window.decrementWindowSize();
+
             }
 
         }catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void close(){
+        try {
+            socket.close();
+            fis.close();
+        }catch(IOException e){
+            System.out.println("Error closing File Input Stream");
+        }
+
     }
 }
