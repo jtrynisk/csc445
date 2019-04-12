@@ -1,8 +1,6 @@
-import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.io.*;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
 
 public class WRQPacket extends Packet {
 
@@ -16,7 +14,7 @@ public class WRQPacket extends Packet {
     public DatagramPacket createPacket(String toUpload, File file, InetAddress address, int port, int sendAs){
 
         DatagramPacket outPacket;
-        buffer = new byte[3 + (int)file.length()];
+        buffer = new byte[4 + (int)file.length()];
         position = 0;
         totalPackets = (file.length()/PACKET_SIZE);
         buffer[position] = (byte)totalPackets;

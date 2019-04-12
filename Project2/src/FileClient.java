@@ -1,8 +1,6 @@
-import java.lang.reflect.Array;
 import java.util.*;
 import java.io.*;
 import java.net.*;
-import java.util.concurrent.TimeoutException;
 
 public class FileClient {
 
@@ -35,17 +33,17 @@ public class FileClient {
 
     /**
      * Creates a File Client with IPv6 parameters
-     * @param host
-     * @param port
-     * @param address
+     * @param host host of the server
+     * @param port port from the server always 2710
+     * @param address Internet address
      */
     public FileClient(String host, int port, InetAddress address){
 
         this.host = host;
-        this.port = port + 1;
+        this.port = port;
         System.setProperty("java.net.preferIPv6Addresses", "true");
         try{
-            socket = new DatagramSocket(port + 1, address);
+            socket = new DatagramSocket();
         }catch(SocketException e){
             e.printStackTrace();
         }
@@ -57,22 +55,23 @@ public class FileClient {
      * is for the different parameters of the assignment.
      * IPv4 vs IPv6
      * Sequential or Dropped or Sliding Window.
-     * @param toUpload
-     * @param file
-     * @param sendAs
+     * @param toUpload String of the file name
+     * @param file The file object of what is going to be uploaded
+     * @param sendAs This is the code it will be sent, either sequential, dropped, or window
      */
     public void wrq(String toUpload, File file, int sendAs){
 
         try {
             //Create variables for the wrq packet
             address = InetAddress.getByName(this.host);
-            System.out.println("made address");
             WRQPacket wrq = new WRQPacket();
-            System.out.println("created wrq packet");
             DatagramPacket outPacket = wrq.createPacket(toUpload, file, address, port, sendAs);
-            System.out.println("created outPacket");
-            socket.send(outPacket);
-            System.out.println("Sent packet");
+            try {
+                socket.send(outPacket);
+                socket.setSoTimeout(5000);
+            }catch(SocketTimeoutException to){
+                socket.send(outPacket);
+            }
 
         }
         catch(IOException err){
@@ -80,6 +79,10 @@ public class FileClient {
         }
     }
 
+    /**
+     * This sends the file with a window size of 1
+     * @param fileName the filename being sent
+     */
     public void sendSequential(String fileName) {
 
         try{
@@ -96,12 +99,13 @@ public class FileClient {
 
             //This will create a packet for each block.
             for(int i = 0; i <= totalPackets; i++){
+                System.out.println(i);
                 byte[] temp;
                 temp = Arrays.copyOfRange(fileContent, (i * 510), (i * 510) + 510);
                 DataPacket packet = new DataPacket();
-                socket.setSoTimeout(2000);
                 try{
                     socket.send(packet.createPacket(temp, address, port, i));
+                    socket.setSoTimeout(5000);
                 }catch(SocketTimeoutException to){
                     socket.send(packet.createPacket(temp, address, port, i));
                 }
@@ -118,6 +122,12 @@ public class FileClient {
         }
     }
 
+    /**
+     * This drops 1% of the packets, it gets the amount of packets divided it by
+     * 100 and then just doesn't receive those packets to imitate dropping the
+     * packet
+     * @param fileName Name of the file to be sent
+     */
     public void sendDropped(String fileName){
 
         try{
@@ -137,9 +147,9 @@ public class FileClient {
                 byte[] temp;
                 temp = Arrays.copyOfRange(fileContent, (i * 510), (i * 510) + 510);
                 DataPacket packet = new DataPacket();
-                socket.setSoTimeout(5000);
                 try{
                     socket.send(packet.createPacket(temp, address, port, i));
+                    socket.setSoTimeout(5000);
                 }catch(SocketTimeoutException to){
                     socket.send(packet.createPacket(temp, address, port, i));
                 }
@@ -155,20 +165,28 @@ public class FileClient {
         }
     }
 
-
+    /**
+     * This creates a window size of two and will increase if it detects no drops
+     * if a drop is detected the window size will stay two as that is the floor
+     * any lower and it would just be sending sequentially.
+     * @param fileName Name of the file to be uploaded
+     */
     public void sendWindow(String fileName){
 
         //Create variables for windowed send.
         File file= new File(fileName);
         int totalPackets = (int)file.length()/PACKET_SIZE;
         Window window = new Window(PACKET_SIZE, totalPackets, socket);
-        window.setUpWindowClient();
         byte[] fileContent = new byte[(int)file.length()];
-        ArrayList receivedAcks = new ArrayList(totalPackets);
+        int[] receivedAcks = new int[totalPackets];
         int blockNum = 0;
-        boolean allSent = false;
+        Arrays.fill(receivedAcks, 0);
+        window.setWindowSize(2);
 
         try {
+
+            int loopCount = totalPackets/window.getWindowSize();
+            System.out.println(loopCount);
 
             //Fill the byte array with the file
             FileInputStream fis = new FileInputStream(file);
@@ -178,28 +196,62 @@ public class FileClient {
             //So the thing is we need to get acks and if no dropped pakcets
             //increase the window size.
                 //This will loop until we verify receivedAcks is full.
-            while(!allSent) {
+            for(int j = 0; j < loopCount; j++){
+                System.out.println(j);
+                byte[] temp;
+                byte[] temp2;
+                temp = Arrays.copyOfRange(fileContent, blockNum * 510, (blockNum * 510) + 510);
+                DatagramPacket outPacket = new DataPacket().createPacket(temp, address, port, blockNum);
+                blockNum++;
+                temp2 = Arrays.copyOfRange(fileContent, blockNum * 510, (blockNum * 510) + 510);
+                DatagramPacket outPacket2 = new DataPacket().createPacket(temp2, address, port, blockNum);
+                try {
+                    socket.send(outPacket);
+                    socket.setSoTimeout(5000);
+                    socket.send(outPacket2);
+                    socket.setSoTimeout(5000);
+                }catch(SocketTimeoutException to){
+                    System.out.println("Dropped a packet");
+                }
+                byte[] ack = new byte[4];
+                byte[] ack2 = new byte[4];
+                DatagramPacket ACK = new DatagramPacket(ack, ack.length);
+                DatagramPacket ACK2 = new DatagramPacket(ack2, ack2.length);
+                try {
+                    socket.receive(ACK);
+                    socket.receive(ACK2);
+                }catch(SocketTimeoutException to){
+                    System.out.println("Dropped ack");
+                }
+                receivedAcks[ack[0]] = 1;
+                receivedAcks[ack2[0]] = 1;
+                blockNum++;
 
-                for (int i = 0; i < window.getWindowSize(); i++) {
+            }
+
+            for (int l = 0; l < receivedAcks.length; l++){
+                if(receivedAcks[l] == 0){
+                    System.out.println(l);
+                    blockNum = receivedAcks[l];
                     byte[] temp;
                     temp = Arrays.copyOfRange(fileContent, blockNum * 510, (blockNum * 510) + 510);
                     DatagramPacket outPacket = new DataPacket().createPacket(temp, address, port, blockNum);
                     try {
-                        socket.setSoTimeout(2000);
                         socket.send(outPacket);
-                    }catch(SocketTimeoutException to){}
+                        socket.setSoTimeout(5000);
+                    }catch(SocketTimeoutException to){
+                        socket.send(outPacket);
+                    }
                     byte[] ack = new byte[4];
                     DatagramPacket ACK = new DatagramPacket(ack, ack.length);
-                    socket.receive(ACK);
-                    receivedAcks.add(ack[0], 1);
-                    blockNum++;
-
-                    //Need to implement something to increase window size.
+                    try {
+                        socket.receive(ACK);
+                    }catch(SocketTimeoutException to){
+                    }
+                    receivedAcks[ack[0]] = 1;
                 }
-                if(!receivedAcks.contains(null))
-                    allSent = true;
-
             }
+
         }catch(IOException e){
             e.printStackTrace();
         }
