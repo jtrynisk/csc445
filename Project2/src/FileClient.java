@@ -1,4 +1,3 @@
-import javax.xml.crypto.Data;
 import java.util.*;
 import java.io.*;
 import java.net.*;
@@ -176,16 +175,20 @@ public class FileClient {
     public void sendWindow(String fileName){
 
         //Create variables for windowed send.
-        File file= new File(fileName);
+        File file = new File(fileName);
         int totalPackets = (int)file.length()/PACKET_SIZE;
-        Window window = new Window(PACKET_SIZE, totalPackets, socket);
+        Window window = new Window(PACKET_SIZE, totalPackets -1, socket);
         byte[] fileContent = new byte[(int)file.length()];
         int[] receivedAcks = new int[totalPackets];
-        int blockNum = 0;
         Arrays.fill(receivedAcks, 0);
-        window.setWindowSize(2);
+        window.setWindowSize(5);
         boolean dropDetected = false;
-        Queue<DatagramPacket>toSend = null;
+        Queue<DatagramPacket>toSend = new LinkedList<>();
+        int toAck = 0;
+        DatagramPacket tempSend = null;
+        DatagramPacket packet = null;
+
+        System.out.println(totalPackets);
 
         try {
 
@@ -195,22 +198,41 @@ public class FileClient {
             for(int i = 0; i < totalPackets; i++){
                 byte[] temp;
                 temp = Arrays.copyOfRange(fileContent, (i * DATAPACKET_SIZE), (i * DATAPACKET_SIZE) + DATAPACKET_SIZE);
-                DatagramPacket packet = new DataPacket().createPacket(temp, address, port, i);
+                packet = new DataPacket().createPacket(temp, address, port, i);
                 toSend.add(packet);
             }
 
             //This will keep sending until the queue is empty
             while(!toSend.isEmpty()){
 
+                toAck = 0;
+
                 //Send the packets for the size of the window
                 for(int i = 0; i < window.getWindowSize(); i++){
-                    socket.send(toSend.remove());
+                    try {
+                        if(!toSend.isEmpty()) {
+                            System.out.println("Send count: " + i);
+                            tempSend = toSend.remove();
+                            socket.send(tempSend);
+                            socket.setSoTimeout(5000);
+                            toAck++;
+                        }
+                        else
+                            break;
+                    }catch(SocketTimeoutException to){
+                        dropDetected = true;
+                        toSend.add(tempSend);
+                        toAck--;
+                    }
                 }
+
+                System.out.println("Done sending dem packets");
 
                 //Need something to check if we receive an ack for what is sent
 
                 //Receive acks for the size of the window
-                for(int i = 0; i < window.getWindowSize(); i++){
+                for(int i = 0; i < toAck; i++){
+                    System.out.println("Ack count: " + i);
                     try{
                         byte[]ack = new byte[4];
                         DatagramPacket ACK = new DatagramPacket(ack, ack.length);

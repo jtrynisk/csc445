@@ -1,12 +1,12 @@
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.net.*;
+import java.util.*;
 
 public class FileServer extends Thread {
+
+    private static final int DATA_PACKET = 510;
+    private static final int DATA_OFFSET = 2;
+    private static final int OP_ACK = 4;
 
     private int port;
     private DatagramSocket socket = null;
@@ -45,7 +45,7 @@ public class FileServer extends Thread {
                 try {
                     socket.receive(inPacket);
                 }catch(SocketTimeoutException to){
-                    socket.receive(inPacket);
+                    System.out.println("Awaiting request");
                 }
                 int totalPackets = req[0] + 1;
                 String fileName = "";
@@ -178,35 +178,74 @@ public class FileServer extends Thread {
 
         //Create the window, with packet size, and amount of packets, and the socket.
         Window window = new Window(512, totalPackets, socket);
-        int blockNum;
         int count = 0;
         byte[] data = new byte[totalPackets * 512];
-        window.setWindowSize(2);
+        window.setWindowSize(5);
 
-        int[] receivedPackets = new int[totalPackets - 1];
+        int[] receivedPackets = new int[totalPackets];
         Arrays.fill(receivedPackets, 0);
         boolean dropDetected = false;
+        Queue<Integer> toAck = new LinkedList<>();
 
+        System.out.println(totalPackets);
         try {
-            //This will keep track of what has been received by blockNum and request
-            //What is missed once the window is "done"
-            while(count < totalPackets) {
 
-                //receive for the size window
+            //Count keeps track of how many total packets are received.
+            while(count < totalPackets - 1) {
 
-                //This creates the file from the data array
-                String newFilePath = ("output/" + fileName);
-                File newPath = new File(newFilePath);
-                if (!newPath.exists())
-                    newPath.createNewFile();
-                else {
-                    newPath.delete();
-                    newPath.createNewFile();
+                byte[] receivedArray = new byte[512];
+                DatagramPacket receivedPacket = new DatagramPacket(receivedArray, receivedArray.length);
+
+                for(int i = 0;count < totalPackets && i < window.getWindowSize(); i++){
+                    try{
+                        if(count < totalPackets -1) {
+                            socket.receive(receivedPacket);
+                            socket.setSoTimeout(5000);
+                            count++;
+                            receivedPackets[(int)receivedArray[1]] = 1;
+                            toAck.add((int) receivedArray[1]);
+                            System.out.println((int)receivedArray[1]);
+                            System.arraycopy(receivedArray, DATA_OFFSET, data, DATA_PACKET * (int)receivedArray[1], DATA_PACKET);
+                        }
+                        else
+                            break;
+                    }catch(SocketTimeoutException to){
+                        System.out.println("Droppin packets");
+                        dropDetected = true;
+                    }
+
                 }
-                bos = new BufferedOutputStream(new FileOutputStream(newPath.getAbsolutePath()));
-                bos.write(data);
-                bos.close();
+
+                //Need to send the acks for the received packets
+                while(!toAck.isEmpty()) {
+                    byte[] ackArray = new byte[4];
+                    ackArray[0] = toAck.remove().byteValue();
+                    ackArray[2] = OP_ACK;
+                    DatagramPacket ACK = new DatagramPacket(ackArray, ackArray.length, inPacket.getAddress(), inPacket.getPort());
+                    socket.send(ACK);
+                }
+                if(!dropDetected)
+                    window.incrementWindowSize();
+                else{
+                    if(window.getWindowSize() > 2)
+                        window.decrementWindowSize();
+                }
             }
+
+            //This creates the file from the data array
+            String newFilePath = ("output/" + fileName);
+            File newPath = new File(newFilePath);
+            if (!newPath.exists())
+                newPath.createNewFile();
+            else {
+                newPath.delete();
+                newPath.createNewFile();
+            }
+            bos = new BufferedOutputStream(new FileOutputStream(newPath.getAbsolutePath()));
+            bos.write(data);
+            bos.close();
+
+
         }catch(IOException e){
             e.printStackTrace();
         }
