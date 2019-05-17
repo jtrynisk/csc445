@@ -204,14 +204,12 @@ public class FileServer extends Thread {
                             count++;
                             receivedPackets[(int)receivedArray[1]] = 1;
                             toAck.add((int) receivedArray[1]);
-                            System.out.println((int)receivedArray[1]);
                             System.arraycopy(receivedArray, DATA_OFFSET, data, DATA_PACKET * (int)receivedArray[1], DATA_PACKET);
                         }
                         else
                             break;
                     }catch(SocketTimeoutException to){
-                        System.out.println("Droppin packets");
-                        dropDetected = true;
+                      dropDetected = true;
                     }
 
                 }

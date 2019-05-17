@@ -8,7 +8,7 @@ public class fctest {
 
         long start, end, total;
         int port = 2710;
-        String host = "127.0.0.1";
+        String host = "pi.cs.oswego.edu";
         FileClient fc = new FileClient(host, port);
         String filepath = "/Users/jondntryniski/445/Project2/test.png";
         File file = new File(filepath);
@@ -20,20 +20,19 @@ public class fctest {
 
         try {
 
-            start = System.nanoTime();
-            fc.wrq(file.getName(), file, 0);
-            fc.sendSequential(filepath);
-            end = System.nanoTime();
-            total = end - start;
-            System.out.println("Sequential RTT: " + (double) total / 1000000000 + " File size in bytes: " + file.length());
-
-            start = System.nanoTime();
-            fc.wrq(file1.getName(), file1, 1);
-            fc.sendDropped(filepath1);
-            end = System.nanoTime();
-            total = end - start;
-            System.out.println("Dropped RTT: " + (double) total / 1000000000 + " File size in bytes: " + file.length());
-
+//            start = System.nanoTime();
+//            fc.wrq(file.getName(), file, 0);
+//            fc.sendSequential(filepath);
+//            end = System.nanoTime();
+//            total = end - start;
+//            System.out.println("Sequential RTT: " + (double) total / 1000000000 + " File size in bytes: " + file.length());
+//
+//            start = System.nanoTime();
+//            fc.wrq(file1.getName(), file1, 1);
+//            fc.sendDropped(filepath1);
+//            end = System.nanoTime();
+//            total = end - start;
+//            System.out.println("Dropped RTT: " + (double) total / 1000000000 + " File size in bytes: " + file.length());
 
             start = System.nanoTime();
             fc.wrq(file2.getName(), file2, 2);

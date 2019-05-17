@@ -13,6 +13,8 @@ public class WRQPacket extends Packet {
 
     public DatagramPacket createPacket(String toUpload, File file, InetAddress address, int port, int sendAs){
 
+        toUpload.trim()
+
         DatagramPacket outPacket;
         buffer = new byte[4 + (int)file.length()];
         position = 0;
