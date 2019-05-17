@@ -2,38 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b9c0126d-a9ed-475c-9633-387443b65a35" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../.idea/445.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AES.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Client.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/MessagePacket.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tester.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1 Times.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1_images/Picture1.png-1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1_images/Picture1.png-10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1_images/Picture1.png-2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1_images/Picture1.png-3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1_images/Picture1.png-4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1_images/Picture1.png-5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1_images/Picture1.png-6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1_images/Picture1.png-7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1_images/Picture1.png-8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project 1/Proj1_images/Picture1.png-9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project2/.idea/Project2.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project2/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project2/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project2/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project2/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Project2/test.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Project 1/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Project 1/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Project2/src/FileServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Project2/src/FileServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Project2/src/WRQPacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Project2/src/WRQPacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Project2/src/fctest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Project2/src/fctest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Client.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -68,8 +37,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="464">
-              <caret line="47" column="91" lean-forward="true" selection-start-line="47" selection-start-column="91" selection-end-line="47" selection-end-column="91" />
+            <state relative-caret-position="570">
+              <caret line="54" selection-start-line="54" selection-end-line="54" />
             </state>
           </provider>
         </entry>
@@ -89,7 +58,7 @@
     </leaf>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -145,6 +114,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src/backend" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
@@ -221,6 +191,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1" y="23" width="1440" height="814" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Image Layers" />
       <window_info id="Designer" />
@@ -309,8 +280,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Client.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="464">
-          <caret line="47" column="91" lean-forward="true" selection-start-line="47" selection-start-column="91" selection-end-line="47" selection-end-column="91" />
+        <state relative-caret-position="570">
+          <caret line="54" selection-start-line="54" selection-end-line="54" />
         </state>
       </provider>
     </entry>

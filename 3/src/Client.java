@@ -50,8 +50,6 @@ public class Client {
         socket.send(outPacket);
 
 
-        }
-
     }
 
 }
