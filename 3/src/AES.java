@@ -1,28 +1,17 @@
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 
 public class AES {
 
-    private static final String ENCRYTPION = "AES";
+    private static final String ENCRYPTION = "AES";
     private static final String CIPHER = "AES/ECB/PKCS5Padding";
-    private static final int PACKET_SIZE = 512;
+    private static final int PASS_SIZE = 16;
 
-    private static Cipher cipher;
-    private SecretKey secretKey;
+    private SecretKeySpec secretKey;
 
-    /**
-     * Generates a new AES encryption instance, with a secret key
-     * @throws Exception for NoSuchAlgorith and PaddingException
-     */
-    public AES() throws Exception{
-
-        KeyGenerator keyGenerator = KeyGenerator.getInstance(ENCRYTPION);
-        keyGenerator.init(128);
-        secretKey = keyGenerator.generateKey();
-
+    private void setKey(byte[] pass){
+        secretKey = new SecretKeySpec(pass, ENCRYPTION);
     }
 
     /**
@@ -31,9 +20,13 @@ public class AES {
      * @return encyrpted bytes
      * @throws Exception cipher init
      */
-    public byte[] encyrpt(byte[] toEncrypt) throws Exception{
+    public byte[] encrypt(byte[] toEncrypt, byte[] pass) throws Exception{
 
-        cipher = Cipher.getInstance(CIPHER);
+        ByteBuffer bb = ByteBuffer.allocate(16);
+        bb.put(pass);
+        setKey(bb.array());
+
+        Cipher cipher = Cipher.getInstance(CIPHER);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
         byte[] encrypted = cipher.doFinal(toEncrypt);
         return encrypted;
@@ -42,14 +35,19 @@ public class AES {
 
     /**
      * Decryptes bytes under AES
-     * @param encyrpted byte array of encrypted data
+     * @param encrypted byte array of encrypted data
      * @return byte array of decrypted data
      * @throws Exception cipher
      */
-    public byte[] decrypt(byte[] encyrpted) throws Exception{
+    public byte[] decrypt(byte[] encrypted, byte[] pass) throws Exception{
 
+        ByteBuffer bb = ByteBuffer.allocate(PASS_SIZE);
+        bb.put(pass);
+        setKey(pass);
+
+        Cipher cipher = Cipher.getInstance(CIPHER);
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
-        byte[] decrypted = cipher.doFinal(encyrpted);
+        byte[] decrypted = cipher.doFinal(encrypted);
         return decrypted;
 
     }

@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public class MessagePacket {
 
-    private static final int PACKET_SIZE = 512;
+    private static final int PACKET_SIZE = 128;
 
     private String id;
     private String message;

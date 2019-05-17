@@ -7,8 +7,9 @@ public class tester {
         Client c = new Client();
 
         try {
-            c.connect("224.0.0.193");
-        }catch(IOException e){
+            c.connect("239.0.0.193");
+            c.send("Jondn", "This is a test");
+        }catch(Exception e){
             e.printStackTrace();
         }
     }
